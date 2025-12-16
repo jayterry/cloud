@@ -18,7 +18,7 @@ if (!GEMINI_API_KEY) {
   process.exit(1); // 強制停止伺服器
 }
 // Gemini 的模型設定
-const GEMINI_MODEL = 'gemini-1.5-flash-latest';
+const GEMINI_MODEL = 'gemini-1.5-flash-001';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 // **🌟 健康檢查路由 (讓 Render 知道服務活著)**
@@ -99,6 +99,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
 
 
 
