@@ -9,10 +9,14 @@ app.use(cors());
 // 解析 JSON 請求
 app.use(express.json());
 
-// **🌟 設定：從 Render 環境變數讀取 API Key**
-// 如果 Render 沒設，會自動使用後面這串 (方便你測試，但建議在 Render 設定)
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBd9wznPiL-MJJuhIr3x36lpvD0zIYtoCg';
+// ✅ 安全寫法：強制程式去讀取系統變數，程式碼裡完全不留痕跡
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
+// (選擇性) 加一個檢查，如果沒讀到 Key 就報錯，方便 Debug
+if (!GEMINI_API_KEY) {
+  console.error("❌ 嚴重錯誤：找不到 GEMINI_API_KEY，請確認 Render 環境變數是否已設定！");
+  process.exit(1); // 強制停止伺服器
+}
 // Gemini 的模型設定
 const GEMINI_MODEL = 'gemini-1.5-flash'; // 使用免費且快速的模型
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
@@ -95,3 +99,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
