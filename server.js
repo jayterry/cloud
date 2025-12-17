@@ -467,7 +467,7 @@ function chooseThemeAndActivity(emotion, context) {
   recentMemory.themes
 );
 
-  ㄥconst selectedActivity = pickWithCooldown(
+  const selectedActivity = pickWithCooldown(
   emotionData[selectedTheme].activities,
   recentMemory.activities
 );
@@ -582,6 +582,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
+
 
 
 
