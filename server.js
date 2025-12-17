@@ -2,6 +2,13 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
+const recentMemory = {
+  themes: [],
+  activities: []
+};
+
+const MAX_RECENT = 3;
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -15,6 +22,15 @@ const customOpenAIApi = axios.create({
     'Content-Type': 'application/json'
   }
 });
+
+function pickWithCooldown(list, recentList) {
+  if (!Array.isArray(list) || list.length === 0) return null;
+
+  const filtered = list.filter(item => !recentList.includes(item));
+  const pool = filtered.length ? filtered : list; // 全部被冷卻就放寬
+
+  return randomPick(pool);
+}
 
 function randomPick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -446,8 +462,15 @@ function chooseThemeAndActivity(emotion, context) {
   });
 
   const pickThemes = eligibleThemes.length ? eligibleThemes : themes;
-  const selectedTheme = randomPick(pickThemes);
-  const selectedActivity = randomPick(emotionData[selectedTheme].activities);
+  const selectedTheme = pickWithCooldown(
+  pickThemes,
+  recentMemory.themes
+);
+
+  ㄥconst selectedActivity = pickWithCooldown(
+  emotionData[selectedTheme].activities,
+  recentMemory.activities
+);
 
   return { selectedTheme, selectedActivity, context: ctx };
 }
@@ -537,6 +560,16 @@ ${stealthHint}
       selectedActivity,
       retry: !!retry
     };
+   recentMemory.themes.push(selectedTheme);
+  if (recentMemory.themes.length > MAX_RECENT) {
+    recentMemory.themes.shift();
+  }
+
+  recentMemory.activities.push(selectedActivity);
+  if (recentMemory.activities.length > MAX_RECENT) {
+    recentMemory.activities.shift();
+  }
+
 
     res.json(result);
   } catch (error) {
@@ -549,5 +582,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
+
 
 
